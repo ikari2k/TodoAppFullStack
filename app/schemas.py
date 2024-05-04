@@ -8,6 +8,7 @@ class UserRole(Enum):
 
 
 class User(BaseModel):
+    id: int
     email: str
     username: str
     first_name: str

@@ -14,7 +14,7 @@ from app.main import app
 from app.db.database import Base, get_db
 from app.db.hash import Hash
 from app.db.models import DBUser
-from app.schemas import UserCreate, UserRole
+from app.schemas import UserRole
 
 SQLALCHEMY_DB_URL = "sqlite:///:memory:"
 
@@ -59,6 +59,7 @@ def session() -> Generator[Session, None, None]:
 
     session.add(db_user)
     session.commit()
+    session.refresh(db_user)
 
     yield session
 

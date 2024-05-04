@@ -31,7 +31,7 @@ def db_find_user(user_id: int, db: Session = Depends(get_db)) -> DBUser:
     db_user = db.query(DBUser).filter(DBUser.id == user_id).first()
     if db_user is None:
         raise NotFoundException("Item not found")
-    return DBUser
+    return db_user
 
 
 def db_read_user(user_id: int, db: Session = Depends(get_db)) -> User:

@@ -16,6 +16,7 @@ alembic = "^1.13.1"
 bcrypt = "^4.1.2"
 python-dotenv = "^1.0.1"
 psycopg2-binary = "^2.9.9"
+pytest-cov = "^5.0.0"
 
 
 [build-system]
