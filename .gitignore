@@ -3,3 +3,4 @@
 .vscode/settings.json
 __pycache__/
 poetry.lock
+tests/.coverage

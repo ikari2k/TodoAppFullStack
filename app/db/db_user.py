@@ -39,16 +39,23 @@ def db_read_user(user_id: int, db: Session = Depends(get_db)) -> User:
     return User(**db_user.__dict__)
 
 
-def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)) -> User:
+def db_update_user(
+    user_id: int, user: UserUpdate, db: Session = Depends(get_db)
+) -> User:
     db_user = db_find_user(user_id, db)
-    for key, value in user.model_dump().items():
-        setattr(db_user, key, value)
+    db_user.email = user.email
+    db_user.username = user.username
+    db_user.first_name = user.first_name
+    db_user.last_name = user.last_name
+    db_user.role = UserRole.STANDARD.value
+    db_user.password = Hash.bcrypt(user.password)
+
     db.commit()
     db.refresh(db_user)
     return User(**db_user.__dict__)
 
 
-def delete_user(user_id: int, db: Session = Depends(get_db)) -> User:
+def db_delete_user(user_id: int, db: Session = Depends(get_db)) -> User:
     db_user = db_find_user(user_id, db)
     db.delete(db_user)
     db.commit()

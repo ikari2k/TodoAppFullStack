@@ -11,6 +11,6 @@ class DBUser(Base):
     username: Mapped[str] = mapped_column(unique=True)
     first_name: Mapped[str]
     last_name: Mapped[str]
-    password: Mapped[str]
+    password: Mapped[bytes]
     is_active: Mapped[bool] = mapped_column(default=True)
     role: Mapped[str]
