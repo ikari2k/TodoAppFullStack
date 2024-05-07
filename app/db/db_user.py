@@ -2,11 +2,11 @@ from fastapi import Depends
 
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
-from app.db.hash import Hash
-from app.db.models import DBUser
-from app.exceptions import NotFoundException
-from app.schemas import User, UserCreate, UserRole, UserUpdate
+from db.database import get_db
+from db.hash import Hash
+from db.models import DBUser
+from exceptions import NotFoundException
+from schemas import User, UserCreate, UserRole, UserUpdate
 
 
 def db_create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:

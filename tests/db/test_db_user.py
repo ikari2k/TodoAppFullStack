@@ -1,4 +1,8 @@
 import pytest
+import sys
+
+
+sys.path.append(".")
 
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect
@@ -12,7 +16,7 @@ from app.db.db_user import (
 )
 from app.db.hash import Hash
 from app.exceptions import NotFoundException
-from app.schemas import User, UserCreate, UserUpdate
+from app.schemas import UserCreate, UserUpdate
 
 
 def test_create_user(session: Session) -> None:
