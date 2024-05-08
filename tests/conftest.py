@@ -1,9 +1,5 @@
 from typing import Generator
 import pytest
-import sys
-
-
-sys.path.append("..")
 
 from app.main import appTodo
 from sqlalchemy import StaticPool, create_engine, text

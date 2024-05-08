@@ -1,10 +1,6 @@
-import sys
-
-sys.path.append("..")
-
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db.database import Base
+from app.db.database import Base
 
 
 class DBUser(Base):

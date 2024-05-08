@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from .db import models
-from .db.database import engine
-from .routes import r_user
+from app.db import models
+from app.db.database import engine
+from app.routes import r_user
 
 
 appTodo = FastAPI()

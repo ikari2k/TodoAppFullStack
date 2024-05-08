@@ -1,8 +1,4 @@
 import pytest
-import sys
-
-
-sys.path.append(".")
 
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect

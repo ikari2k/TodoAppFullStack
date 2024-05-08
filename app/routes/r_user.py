@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Path
 
 from sqlalchemy.orm import Session
 
-from db.database import get_db
-from db.db_user import db_read_user
-from exceptions import NotFoundException
+from app.db.database import get_db
+from app.db.db_user import db_read_user
+from app.exceptions import NotFoundException
 
 
 router = APIRouter(
