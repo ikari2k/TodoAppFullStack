@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import Depends
 
 from sqlalchemy.orm import Session
@@ -25,6 +26,20 @@ def db_create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
     db.refresh(db_user)
 
     return User(**db_user.__dict__)
+
+
+def db_find_users(db: Session = Depends(get_db)) -> List[DBUser]:
+    db_users = db.query(DBUser).all()
+    return db_users
+
+
+def db_read_users(db: Session = Depends(get_db)) -> List[User]:
+    db_users = db_find_users(db)
+    users = []
+    for u in db_users:
+        u = User(**u.__dict__)
+        users.append(u)
+    return users
 
 
 def db_find_user(user_id: int, db: Session = Depends(get_db)) -> DBUser:

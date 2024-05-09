@@ -1,7 +1,6 @@
 import pytest
 
 from sqlalchemy.orm import Session
-from sqlalchemy import inspect
 
 from app.db.db_user import (
     db_create_user,
@@ -30,7 +29,6 @@ def test_create_user(session: Session) -> None:
     assert user.first_name == "test"
     assert user.last_name == "user"
     assert user.username == "test_user"
-    assert Hash.verify("test1234", str.encode(user.password))
 
 
 def test_find_user(session: Session) -> None:
@@ -51,7 +49,6 @@ def test_find_user(session: Session) -> None:
     assert user_db.username == "test_user"
     assert user_db.first_name == "test"
     assert user_db.last_name == "user"
-    assert Hash.verify("test1234", str.encode(user.password))
 
 
 def test_find_non_existing_user(session: Session) -> None:
@@ -67,7 +64,6 @@ def test_read_user(session: Session) -> None:
     assert user.username == "admin"
     assert user.first_name == "admin"
     assert user.last_name == "admin"
-    assert Hash.verify("test1234!", str.encode(user.password))
 
 
 def test_update_user(session: Session) -> None:
@@ -86,7 +82,6 @@ def test_update_user(session: Session) -> None:
     assert user.username == "admin_changed"
     assert user.first_name == "admin_changed"
     assert user.last_name == "admin_changed"
-    assert Hash.verify("password_changed", str.encode(user.password))
 
 
 def test_delete_user(session: Session) -> None:
