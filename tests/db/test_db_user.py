@@ -10,6 +10,7 @@ from app.db.db_user import (
     db_update_user,
 )
 from app.db.hash import Hash
+from app.db.models import DBUser
 from app.exceptions import NotFoundException
 from app.schemas import UserCreate, UserUpdate
 
@@ -57,17 +58,18 @@ def test_find_non_existing_user(session: Session) -> None:
         db_find_user(user_id, session)
 
 
-def test_read_user(session: Session) -> None:
-    user_id = 1
-    user = db_read_user(user_id, session)
+def test_read_user(test_user: tuple[DBUser, Session]) -> None:
+    db_user, session = test_user
+    user = db_read_user(db_user.id, session)
     assert user.email == "admin@email.com"
     assert user.username == "admin"
     assert user.first_name == "admin"
     assert user.last_name == "admin"
 
 
-def test_update_user(session: Session) -> None:
-    user_id = 1
+def test_update_user(test_user: tuple[DBUser, Session]) -> None:
+    db_user, session = test_user
+    user_id = db_user.id
     user_update = UserUpdate(
         email="admin_changed@email.com",
         username="admin_changed",
@@ -84,8 +86,9 @@ def test_update_user(session: Session) -> None:
     assert user.last_name == "admin_changed"
 
 
-def test_delete_user(session: Session) -> None:
-    user_id = 1
+def test_delete_user(test_user: tuple[DBUser, Session]) -> None:
+    db_user, session = test_user
+    user_id = db_user.id
     db_delete_user(user_id, session)
 
     with pytest.raises(NotFoundException):

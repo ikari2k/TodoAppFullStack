@@ -15,16 +15,17 @@ from app.schemas import UserCreate, UserRole, UserUpdate
 client = TestClient(appTodo)
 
 
-def test_get_user_by_id(test_user: DBUser):
-    response = client.get(f"/users/{test_user.id}")
+def test_get_user_by_id(test_user: tuple[DBUser, Session]):
+    db_user, session = test_user
+    response = client.get(f"/users/{db_user.id}")
     assert response.status_code == status.HTTP_200_OK, response.text
 
     data = response.json()
-    assert data["email"] == test_user.email
-    assert data["username"] == test_user.username
-    assert data["first_name"] == test_user.first_name
-    assert data["last_name"] == test_user.last_name
-    assert data["role"] == test_user.role
+    assert data["email"] == db_user.email
+    assert data["username"] == db_user.username
+    assert data["first_name"] == db_user.first_name
+    assert data["last_name"] == db_user.last_name
+    assert data["role"] == db_user.role
 
 
 def test_get_nonexisting_user_by_id(test_user: DBUser):
@@ -54,7 +55,9 @@ def test_create_valid_user(session: Session):
     assert response_data["last_name"] == user.last_name
     assert response_data["role"] == UserRole.STANDARD.value
 
-    db_user = session.query(DBUser).filter(DBUser.id == 2).first()
+    user_id = response_data["id"]
+
+    db_user = session.query(DBUser).filter(DBUser.id == user_id).first()
     assert db_user
     assert db_user.email == user.email
     assert db_user.first_name == user.first_name

@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Any, Generator
 import pytest
 
 from app.main import appTodo
@@ -43,20 +43,6 @@ def session() -> Generator[Session, None, None]:
 
     session = TestingSessionLocal()
 
-    db_user = DBUser(
-        email="admin@email.com",
-        username="admin",
-        first_name="admin",
-        last_name="admin",
-        role=UserRole.ADMIN.value,
-        password=Hash.bcrypt("test1234!"),
-        is_active=True,
-    )
-
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
-
     yield session
 
     session.close()
@@ -66,7 +52,7 @@ def session() -> Generator[Session, None, None]:
 
 
 @pytest.fixture
-def test_user() -> Generator[DBUser, None, None]:
+def test_user() -> Generator[Any, Any, Any]:
     # Create tables in the test db
     Base.metadata.create_all(bind=engine)
 
@@ -86,7 +72,7 @@ def test_user() -> Generator[DBUser, None, None]:
     session.commit()
     session.refresh(db_user)
 
-    yield db_user
+    yield db_user, session
 
     session.close()
 
