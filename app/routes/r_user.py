@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.db_user import (
     db_create_user,
+    db_delete_user,
     db_read_user,
     db_read_users,
     db_update_user,
@@ -63,6 +64,16 @@ async def update_user(
     check_if_user_exists(user, db)
     try:
         return db_update_user(user_id, user, db)
+    except NotFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_200_OK)
+async def delete_user(user_id: int, db: Session = Depends(get_db)) -> User:
+    try:
+        return db_delete_user(user_id, db)
     except NotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"

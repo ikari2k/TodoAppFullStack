@@ -28,7 +28,7 @@ def test_get_user_by_id(test_user: tuple[DBUser, Session]):
     assert data["role"] == db_user.role
 
 
-def test_get_nonexisting_user_by_id(test_user: DBUser):
+def test_get_nonexisting_user_by_id(session: Session):
     response = client.get("/users/999")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -174,3 +174,17 @@ def test_update_invalid_user(session: Session):
     response = client.put(f"/users/999", json=json.loads(data_updated))
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_delete_valid_user(test_user: tuple[DBUser, Session]):
+    db_user, session = test_user
+    response = client.delete(f"/users/{db_user.id}")
+    assert response.status_code == status.HTTP_200_OK, response.text
+
+    response_get = client.get(f"/users/{db_user.id}")
+    assert response_get.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_delete_invalid_user(session: Session):
+    response = client.delete(f"/users/999")
+    assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
