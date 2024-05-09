@@ -55,10 +55,12 @@ def test_create_user(session: Session):
     assert response_data["role"] == UserRole.STANDARD.value
 
     db_user = session.query(DBUser).filter(DBUser.id == 2).first()
+    assert db_user
     assert db_user.email == user.email
     assert db_user.first_name == user.first_name
     assert db_user.last_name == user.last_name
     assert db_user.username == user.username
+    assert Hash.verify(user.password, db_user.password)
 
 
 def test_create_invalid_user_same_email(session: Session):
