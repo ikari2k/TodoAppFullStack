@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.hash import Hash
 from app.main import appTodo
 from app.db.models import DBUser
-from app.schemas import UserCreate, UserRole
+from app.schemas import UserCreate, UserRole, UserUpdate
 
 
 client = TestClient(appTodo)
@@ -34,7 +34,7 @@ def test_get_nonexisting_user_by_id(test_user: DBUser):
     assert response.json() == {"detail": "User not found"}
 
 
-def test_create_user(session: Session):
+def test_create_valid_user(session: Session):
     user = UserCreate(
         email="new_email1@email.com",
         username="new_user1",
@@ -111,3 +111,63 @@ def test_create_invalid_user_same_username(session: Session):
     data_user2 = json.dumps(user2.__dict__)
     response = client.post("/users/", json=json.loads(data_user2))
     assert response.status_code == status.HTTP_409_CONFLICT
+
+
+def test_update_valid_user(session: Session):
+    user_to_update = UserCreate(
+        email="new_email1@email.com",
+        username="new_user1",
+        first_name="new_FN",
+        last_name="new_LN",
+        password="new_password",
+    )
+
+    data_to_update = json.dumps(user_to_update.__dict__)
+    response = client.post("/users/", json=json.loads(data_to_update))
+    assert response.status_code == status.HTTP_201_CREATED
+
+    id_to_update = response.json()["id"]
+
+    user_updated = UserUpdate(
+        email="updated@email.com",
+        username="updated",
+        first_name="updated_FN",
+        last_name="updated_LN",
+        password="updated_password",
+    )
+
+    data_updated = json.dumps(user_updated.__dict__)
+
+    response = client.put(f"/users/{id_to_update}", json=json.loads(data_updated))
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+    assert response_data["email"] == user_updated.email
+    assert response_data["username"] == user_updated.username
+    assert response_data["first_name"] == user_updated.first_name
+    assert response_data["last_name"] == user_updated.last_name
+    assert response_data["role"] == UserRole.STANDARD.value
+
+    db_user = session.query(DBUser).filter(DBUser.id == id_to_update).first()
+    assert db_user
+    assert db_user.email == user_updated.email
+    assert db_user.first_name == user_updated.first_name
+    assert db_user.last_name == user_updated.last_name
+    assert db_user.username == user_updated.username
+    assert Hash.verify(user_updated.password, db_user.password)
+
+
+def test_update_invalid_user(session: Session):
+    user_updated = UserUpdate(
+        email="updated@email.com",
+        username="updated",
+        first_name="updated_FN",
+        last_name="updated_LN",
+        password="updated_password",
+    )
+
+    data_updated = json.dumps(user_updated.__dict__)
+
+    response = client.put(f"/users/999", json=json.loads(data_updated))
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND

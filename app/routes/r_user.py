@@ -4,10 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, status, Path
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.db.db_user import db_create_user, db_find_users, db_read_user, db_read_users
+from app.db.db_user import (
+    db_create_user,
+    db_read_user,
+    db_read_users,
+    db_update_user,
+)
 from app.db.models import DBUser
 from app.exceptions import NotFoundException
-from app.schemas import User, UserCreate
+from app.schemas import User, UserCreate, UserUpdate
 
 
 router = APIRouter(
@@ -34,6 +39,11 @@ async def get_all_users(db: Session = Depends(get_db)) -> List[User]:
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
+    check_if_user_exists(user, db)
+    return db_create_user(user, db)
+
+
+def check_if_user_exists(user, db):
     existing_email = db.query(DBUser).filter(DBUser.email == user.email).first()
     existing_username = (
         db.query(DBUser).filter(DBUser.username == user.username).first()
@@ -45,4 +55,15 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
             detail=f"User with existing email or username does already exist",
         )
 
-    return db_create_user(user, db)
+
+@router.put("/{user_id}", status_code=status.HTTP_200_OK)
+async def update_user(
+    user_id: int, user: UserUpdate, db: Session = Depends(get_db)
+) -> User:
+    check_if_user_exists(user, db)
+    try:
+        return db_update_user(user_id, user, db)
+    except NotFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
