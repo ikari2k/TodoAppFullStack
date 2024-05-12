@@ -1,6 +1,7 @@
 from typing import Any, Generator
 import pytest
 
+from app.auth.authentication import get_current_user
 from app.main import appTodo
 from sqlalchemy import StaticPool, create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
@@ -10,7 +11,7 @@ from fastapi.testclient import TestClient
 from app.db.database import Base, get_db
 from app.db.hash import Hash
 from app.db.models import DBUser
-from app.schemas import UserRole
+from app.schemas import UserRole, UserTokenData
 
 SQLALCHEMY_DB_URL = "sqlite:///:memory:"
 
@@ -33,7 +34,12 @@ def override_get_db():
         db.close()
 
 
+def override_get_current_user():
+    return UserTokenData(username="admin", id=1, role=UserRole.ADMIN)
+
+
 appTodo.dependency_overrides[get_db] = override_get_db
+appTodo.dependency_overrides[get_current_user] = override_get_current_user
 
 
 @pytest.fixture

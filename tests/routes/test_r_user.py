@@ -6,10 +6,11 @@ from fastapi import status
 
 from sqlalchemy.orm import Session
 
+from app.db.db_user import db_find_user
 from app.db.hash import Hash
 from app.main import appTodo
 from app.db.models import DBUser
-from app.schemas import UserCreate, UserRole, UserUpdate
+from app.schemas import PasswordVerification, UserCreate, UserRole, UserUpdate
 
 
 client = TestClient(appTodo)
@@ -26,6 +27,19 @@ def test_get_user_by_id(test_user: tuple[DBUser, Session]):
     assert data["first_name"] == db_user.first_name
     assert data["last_name"] == db_user.last_name
     assert data["role"] == db_user.role
+
+
+def test_get_current_user(test_user: tuple[DBUser, Session]):
+    db_user, session = test_user
+    response = client.get("/users/current/")
+    assert response.status_code == status.HTTP_200_OK
+    user_data = response.json()
+    assert user_data["id"] == db_user.id
+    assert user_data["username"] == db_user.username
+    assert user_data["email"] == db_user.email
+    assert user_data["first_name"] == db_user.first_name
+    assert user_data["last_name"] == db_user.last_name
+    assert user_data["role"] == db_user.role
 
 
 def test_get_nonexisting_user_by_id(session: Session):
@@ -174,6 +188,18 @@ def test_update_invalid_user(session: Session):
     response = client.put(f"/users/999", json=json.loads(data_updated))
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_change_password(test_user: tuple[DBUser, Session]):
+    password_verification = PasswordVerification(
+        current_password_to_verify="test1234!", new_password="new_password"
+    )
+    password_verification_json = json.dumps(password_verification.__dict__)
+    response = client.put(
+        "/users/password/", json=json.loads(password_verification_json)
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
 def test_delete_valid_user(test_user: tuple[DBUser, Session]):

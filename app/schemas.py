@@ -30,3 +30,19 @@ class UserUpdate(BaseModel):
     first_name: str
     last_name: str
     password: str
+
+
+class PasswordVerification(BaseModel):
+    current_password_to_verify: str
+    new_password: str
+
+
+class AccessToken(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class UserTokenData(BaseModel):
+    username: str
+    id: int
+    role: UserRole

@@ -3,6 +3,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from app.db.db_user import (
+    db_change_password,
     db_create_user,
     db_delete_user,
     db_find_user,
@@ -12,7 +13,7 @@ from app.db.db_user import (
 from app.db.hash import Hash
 from app.db.models import DBUser
 from app.exceptions import NotFoundException
-from app.schemas import UserCreate, UserUpdate
+from app.schemas import PasswordVerification, UserCreate, UserTokenData, UserUpdate
 
 
 def test_create_user(session: Session) -> None:
@@ -79,11 +80,23 @@ def test_update_user(test_user: tuple[DBUser, Session]) -> None:
     )
     db_update_user(user_id, user_update, session)
 
-    user = db_read_user(1, session)
+    user = db_read_user(user_id, session)
     assert user.email == "admin_changed@email.com"
     assert user.username == "admin_changed"
     assert user.first_name == "admin_changed"
     assert user.last_name == "admin_changed"
+
+
+def test_change_password(test_user: tuple[DBUser, Session]) -> None:
+    db_user, session = test_user
+    user = UserTokenData(username=db_user.username, id=db_user.id, role=db_user.role)
+    password_verification = PasswordVerification(
+        current_password_to_verify="test1234!", new_password="newPassword"
+    )
+    db_change_password(password_verification, user, session)
+
+    user = db_find_user(user.id, session)
+    assert Hash.verify(password_verification.new_password, user.password)
 
 
 def test_delete_user(test_user: tuple[DBUser, Session]) -> None:

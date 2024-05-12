@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.db import models
 from app.db.database import engine
-from app.routes import r_user
+from app.routes import r_user, r_auth
 
 
 appTodo = FastAPI()
@@ -16,3 +16,4 @@ def health_check():
 
 
 appTodo.include_router(r_user.router)
+appTodo.include_router(r_auth.router)

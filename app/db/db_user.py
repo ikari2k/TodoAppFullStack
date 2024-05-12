@@ -3,11 +3,19 @@ from fastapi import Depends
 
 from sqlalchemy.orm import Session
 
+from app.auth.authentication import get_current_user
 from app.db.database import get_db
 from app.db.hash import Hash
 from app.db.models import DBUser
-from app.exceptions import NotFoundException
-from app.schemas import User, UserCreate, UserRole, UserUpdate
+from app.exceptions import NotFoundException, PasswordChangeError
+from app.schemas import (
+    PasswordVerification,
+    User,
+    UserCreate,
+    UserRole,
+    UserTokenData,
+    UserUpdate,
+)
 
 
 def db_create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
@@ -68,6 +76,28 @@ def db_update_user(
     db.commit()
     db.refresh(db_user)
     return User(**db_user.__dict__)
+
+
+def db_change_password(
+    password_verification: PasswordVerification,
+    user: UserTokenData = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if user is None:
+        raise NotFoundException("User not found")
+
+    db_user = db_find_user(user.id, db)
+    actual_current_password = db_user.password
+
+    if not Hash.verify(
+        password_verification.current_password_to_verify, actual_current_password
+    ):
+        raise PasswordChangeError("Error on password change")
+
+    db_user.password = Hash.bcrypt(password_verification.new_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
 
 
 def db_delete_user(user_id: int, db: Session = Depends(get_db)) -> User:
