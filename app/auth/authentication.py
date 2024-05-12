@@ -34,7 +34,7 @@ def authenticate_user(
     username: str, password: str, db: Session = Depends(get_db)
 ) -> DBUser:
     db_user = db.query(DBUser).filter(DBUser.username == username).first()
-    if not db_user:
+    if not db_user or db_user == None:
         raise ValueError("User not found")
     if not Hash.verify(password, db_user.password):
         raise ValueError("Incorrect Password")
