@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime
 import os
+from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
@@ -16,8 +17,8 @@ oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 load_dotenv()
 if "SECRET_KEY" or "ALGORITHM" in os.environ:
-    secret_key: str = os.getenv("SECRET_KEY")
-    alg: str = os.getenv("ALGORITHM")
+    secret_key: str = os.getenv("SECRET_KEY")  # type: ignore
+    alg: str = os.getenv("ALGORITHM")  # type: ignore
 
 
 def create_access_token(
@@ -42,10 +43,10 @@ def authenticate_user(
 
 def get_current_user(token: str = Depends(oauth2_bearer)) -> UserTokenData:
     try:
-        payload = jwt.decode(token, secret_key, algorithms=alg)
-        username: str = payload.get("sub")
-        user_id: int = payload.get("id")
-        user_role: UserRole = payload.get("role")
+        payload: dict[str, Any] = jwt.decode(token, secret_key, algorithms=alg)
+        username: str = payload.get("sub")  # type: ignore
+        user_id: int = payload.get("id")  # type: ignore
+        user_role: UserRole = payload.get("role")  # type: ignore
         if username is None or user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
