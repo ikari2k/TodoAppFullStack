@@ -209,6 +209,20 @@ def test_change_password(test_user: tuple[DBUser, Session]):
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
+def test_change_password_invalid_password_verification(
+    test_user: tuple[DBUser, Session]
+):
+    password_verification = PasswordVerification(
+        current_password_to_verify="invalid", new_password="new_password"
+    )
+    password_verification_json = json.dumps(password_verification.__dict__)
+    response = client.put(
+        "/users/password/", json=json.loads(password_verification_json)
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
 def test_delete_valid_user(test_user: tuple[DBUser, Session]):
     db_user, session = test_user
     response = client.delete(f"/users/{db_user.id}")
