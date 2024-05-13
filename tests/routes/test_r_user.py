@@ -49,6 +49,13 @@ def test_get_nonexisting_user_by_id(session: Session):
     assert response.json() == {"detail": "User not found"}
 
 
+def test_get_all_users(test_user: tuple[DBUser, Session]):
+    response = client.get("/users")
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert len(data) == 1
+
+
 def test_create_valid_user(session: Session):
     user = UserCreate(
         email="new_email1@email.com",
