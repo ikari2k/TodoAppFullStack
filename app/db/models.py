@@ -14,3 +14,11 @@ class DBUser(Base):
     password: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
     role: Mapped[str]
+
+    def __repr__(self) -> str:
+        repr = (
+            f"User(id={self.id}, name={self.username}, "
+            f"fullname={self.first_name + self.last_name}), role={self.role}, "
+            f"isActive={self.is_active}"
+        )
+        return repr

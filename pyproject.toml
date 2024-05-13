@@ -32,3 +32,8 @@ omit = [
     "*/__init__.py",
 
     ]
+
+[tool.coverage.report]
+exclude_also = [
+    "def __repr__",
+    ]
