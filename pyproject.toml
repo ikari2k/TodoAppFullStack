@@ -24,3 +24,11 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+omit = [
+    # omit anything in a test directory anywhere and __init__.py
+    "*/tests/*",
+    "*/__init__.py",
+
+    ]
