@@ -1,8 +1,10 @@
+import pytest
 from typing import List
 from sqlalchemy.orm import Session
 
 from app.db.db_todos import db_find_todo, db_find_todos, db_read_todo, db_read_todos
 from app.db.models import DBTodo
+from app.exceptions import NotFoundException
 from app.schemas import Todo
 
 
@@ -52,3 +54,15 @@ def test_read_todo(test_todo: tuple[DBTodo, Session]):
     assert todo.completed == db_todo.completed
     assert todo.priority == db_todo.priority
     assert todo.user_id == db_todo.user_id
+
+
+def test_find_nonexisting_todo(test_todo: tuple[DBTodo, Session]):
+    db_todo, session = test_todo
+    with pytest.raises(NotFoundException):
+        db_find_todo(999, session)
+
+
+def test_read_nonexisting_todo(test_todo: tuple[DBTodo, Session]):
+    db_todo, session = test_todo
+    with pytest.raises(NotFoundException):
+        db_read_todo(999, session)
