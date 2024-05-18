@@ -46,3 +46,12 @@ class UserTokenData(BaseModel):
     username: str
     id: int
     role: UserRole
+
+
+class Todo(BaseModel):
+    id: int
+    title: str
+    description: str
+    priority: int
+    user_id: int
+    completed: bool

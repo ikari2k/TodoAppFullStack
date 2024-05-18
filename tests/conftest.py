@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 
 from app.db.database import Base, get_db
 from app.db.hash import Hash
-from app.db.models import DBUser
+from app.db.models import DBTodo, DBUser
 from app.schemas import UserRole, UserTokenData
 
 SQLALCHEMY_DB_URL = "sqlite:///:memory:"
@@ -84,3 +84,26 @@ def test_user() -> Generator[Any, Any, Any]:
 
     # Drop the tables in test db
     Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture
+def test_todo() -> Generator[Any, Any, Any]:
+    Base.metadata.create_all(bind=engine)
+
+    session = TestingSessionLocal()
+
+    db_todo = DBTodo(
+        title="Sample todo",
+        description="Sample description",
+        priority=3,
+        completed=False,
+        user_id=1,
+    )
+
+    session.add(db_todo)
+    session.commit()
+    session.refresh(db_todo)
+
+    yield db_todo, session
+
+    session.close()
