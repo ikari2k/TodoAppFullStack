@@ -107,3 +107,5 @@ def test_todo() -> Generator[Any, Any, Any]:
     yield db_todo, session
 
     session.close()
+    # Drop the tables in test db
+    Base.metadata.drop_all(bind=engine)
